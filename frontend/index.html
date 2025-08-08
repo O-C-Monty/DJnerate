@@ -1,1 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DJ Assistant</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2rem auto; }
+    input, button { padding: 0.5rem; font-size: 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Upload Track</h1>
+  <input type="file" id="fileInput" accept=".mp3,.wav,.flac,.m4a">
+  <button onclick="upload()">Upload</button>
+  <h2>Uploaded Track Metadata</h2>
+  <pre id="output">No uploads yet.</pre>
 
+  <h2>Current Library</h2>
+  <pre id="library">Loading...</pre>
+
+  <script>
+    async function upload() {
+      const file = document.getElementById('fileInput').files[0];
+      if (!file) {
+        alert("Please select a file first!");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/upload", {
+        method: "POST",
+        body: formData
+      });
+      const data = await res.json();
+      document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+      loadLibrary();
+    }
+
+    async function loadLibrary() {
+      const res = await fetch("/library");
+      const lib = await res.json();
+      document.getElementById("library").innerText = JSON.stringify(lib, null, 2);
+    }
+
+    loadLibrary();
+  </script>
+</body>
+</html>
